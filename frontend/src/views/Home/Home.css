@@ -1,0 +1,39 @@
+/* src/Home.css */
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem 2rem;
+}
+
+.title {
+  font-size: 3rem;
+  font-weight: bold;
+  margin-bottom: 3rem;
+}
+
+.category-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  width: 100%;
+  max-width: 1000px;
+}
+
+.category-button {
+  font-size: 2rem;
+  padding: 2rem 3rem;
+  min-width: 220px;
+  flex: 1 1 30%;
+  border: none;
+  border-radius: 12px;
+  background-color: #337eff;
+  color: white;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.category-button:hover {
+  background-color: #1d60d8;
+}

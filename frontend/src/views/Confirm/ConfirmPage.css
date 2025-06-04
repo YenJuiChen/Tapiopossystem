@@ -1,0 +1,140 @@
+.confirm-page {
+  max-width: 480px;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: 'Noto Sans TC', sans-serif;
+}
+
+.confirm-page h2 {
+  font-size: 24px;
+  margin-bottom: 24px;
+  font-weight: bold;
+}
+
+.product-info p {
+  margin: 4px 0;
+  font-size: 16px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+.pos-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.pos-buttons button {
+  flex: 1;
+  padding: 10px 0;
+  font-size: 16px;
+  border: none;
+  border-radius: 6px;
+  background-color: #eee;
+  cursor: pointer;
+}
+
+.pos-buttons button.active {
+  background-color: #3f78f3;
+  color: white;
+}
+
+.quantity-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.quantity-control button {
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+  background-color: #3f78f3;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.quantity-input {
+  width: 60px;
+  height: 40px;
+  font-size: 18px;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+}
+
+.checkbox-group input[type="checkbox"] {
+  accent-color: #3f78f3;
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+}
+
+.checkbox-label {
+  font-size: 16px;
+  user-select: none;
+}
+
+.next-button {
+  width: 100%;
+  background-color: #3f78f3;
+  color: white;
+  font-size: 18px;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.button-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.back-button {
+  flex: 1;
+  background-color: #888;
+  color: white;
+  font-size: 18px;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.submit-button {
+  flex: 2;
+  background-color: #3f78f3;
+  color: white;
+  font-size: 18px;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background-color: #ccc !important;
+  color: #666 !important;
+  cursor: not-allowed;
+}

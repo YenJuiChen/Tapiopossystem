@@ -1,0 +1,56 @@
+.record-list-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.record-list-container h2 {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.record-header {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.record-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+}
+
+.record-filters select,
+.record-filters input {
+  min-width: 180px;
+}
+
+.print-button {
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  height: 40px;
+}
+
+.print-button:hover {
+  background-color: #125ea7;
+}
+
+.pagination-top {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}

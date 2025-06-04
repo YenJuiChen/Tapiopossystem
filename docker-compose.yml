@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  app:
+    image: hcj-fdg-pos:latest
+    container_name: hcj-fdg-pos
+    ports:
+      - "80:80"
+    environment:
+      - PORT=80
+      - MYSQL_USERNAME=admin
+      - MYSQL_PASSWORD=ch7z9Bgb3rZWWR9u
+      - MYSQL_HOST=hcj-fdg-pos.cnaucuus6h5y.ap-northeast-3.rds.amazonaws.com

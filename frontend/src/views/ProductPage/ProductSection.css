@@ -1,0 +1,51 @@
+.product-section {
+  padding: 2rem;
+  font-size: 1.2rem;
+  font-family: "Microsoft JhengHei", "Noto Sans TC", sans-serif;
+}
+
+.section-title {
+  text-align: center;
+  font-size: 2.2rem;
+  margin-bottom: 2rem;
+}
+
+.loading-text {
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 2rem;
+  justify-items: center;
+}
+
+.product-card {
+  width: 240px;
+  cursor: pointer;
+  border: 2px solid #ccc;
+  border-radius: 16px;
+  padding: 2rem 1.5rem;
+  transition: 0.2s;
+  text-align: center;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.product-card:hover {
+  border-color: #007bff;
+  background-color: #eef5ff;
+}
+
+.product-name {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.product-price {
+  font-size: 1.5rem;
+  color: #555;
+}

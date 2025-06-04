@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <title>感謝狀</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap");
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Noto Serif TC", serif;
+        margin: 0;
+        padding: 0;
+        background: white;
+      }
+
+      .certificate {
+        position: relative;
+        width: 794px;  
+        height: 1123px;  
+        margin: 0 auto;
+        padding: 80px 60px;
+        border: 40px solid transparent;
+        border-image: url("/assets/border-red.png") 60 round;
+        background: white;
+      }
+
+      .title {
+        text-align: center;
+        font-size: 48px;
+        color: red;
+        font-weight: bold;
+        margin-bottom: 40px;
+        letter-spacing: 20px;
+      }
+
+      .meta {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 30px;
+        font-size: 18px;
+      }
+
+      .content {
+        font-size: 18px;
+        line-height: 2;
+        text-align: justify;
+        white-space: pre-wrap;
+      }
+
+      .footer {
+        margin-top: 60px;
+        text-align: right;
+        font-size: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="certificate">
+      <div class="title">感謝狀</div>
+      <div class="meta">
+        <div>尊敬的 hsrtgh</div>
+        <div>先生/女士</div>
+      </div>
+      <div class="content">
+        承蒙hsrtgh善信大德之護持，
+        於壽金100奉獻100元，恒春郡福德宮得以香火鼎盛庇佑四方。
+        福德正神慈悲廣佈，惠澤眾生，感藉各方善信的虔誠心念與護持，
+        使得宮務得以順遂推展，神恩浩蕩，福澤綿延。
+        本宮感念善信之誠心，特此致上最深敬意與感謝。
+        誠願福德正神庇祐大德與闔家親眷，福慧雙修，四時無憂；
+        財源廣進，萬事順遂；身體康泰，長樂安寧。
+        亦願眾善信所祈所願，皆蒙神恩佑護，心想事成，吉星高照。
+        因緣殊勝，福澤共沾，謹敬感謝您的護持與善行，
+        祈願福德正神庇祐，安康順遂，福壽延綿。
+      </div>
+      <div class="footer">恒春郡福德宮 敬贈</div>
+    </div>
+
+    <script>
+      setTimeout(() => {
+        window.print();
+        window.onafterprint = () => window.close();
+        setTimeout(() => window.close(), 5000);
+      }, 500);
+    </script>
+  </body>
+</html>
