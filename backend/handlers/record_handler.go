@@ -20,6 +20,30 @@ import (
 
 var staticPath string
 
+// allowList defines permitted columns and sort orders for listing APIs
+var allowedSortFields = map[string]bool{
+	"id":             true,
+	"name":           true,
+	"gender":         true,
+	"address":        true,
+	"phone":          true,
+	"category":       true,
+	"product_id":     true,
+	"product_name":   true,
+	"price":          true,
+	"quantity":       true,
+	"amount":         true,
+	"payment_method": true,
+	"info":           true,
+	"created_at":     true,
+	"code":           true,
+}
+
+var allowedSortOrders = map[string]bool{
+	"ASC":  true,
+	"DESC": true,
+}
+
 func New(path string) {
 	staticPath = path
 }
@@ -50,11 +74,12 @@ func CreateRecord(c *fiber.Ctx) error {
 
 	// 寫入 DB
 	insertResult, err := db.Exec(`INSERT INTO Records 
-	(name, gender, address, phone, category, product_id, product_name, price, quantity, amount, payment_method, code, info, created_at)
-	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        (name, gender, address, phone, category, product_id, product_name, price, quantity, amount, payment_method, code, need_certificate, info, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		record.Name, record.Gender, record.Address, record.Phone, record.Category,
 		record.ProductID, record.ProductName, record.Price, record.Quantity,
-		record.Amount, record.PaymentMethod, record.Code, record.Info, record.CreatedAt,
+		record.Amount, record.PaymentMethod, record.Code, record.NeedCertificate,
+		record.Info, record.CreatedAt,
 	)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "fail", "message": "儲存資料失敗"})
@@ -204,7 +229,7 @@ func ScanRecords(c *fiber.Ctx) error {
 			continue
 		}
 
-		values = append(values, "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+		values = append(values, "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 		args = append(args,
 			"", "", "", "", // name, gender, address, phone
 			data.CategoryID, // category
@@ -214,6 +239,7 @@ func ScanRecords(c *fiber.Ctx) error {
 			1, data.Price,   // quantity, amount
 			req.PaymentType, // payment_method
 			item.Code,       // code
+			0,               // need_certificate
 			"",              // info
 			now,             // created_at
 		)
@@ -223,9 +249,9 @@ func ScanRecords(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"status": "fail", "message": "找不到對應商品"})
 	}
 
-	insertSQL := fmt.Sprintf(`INSERT INTO Records 
-	(name, gender, address, phone, category, product_id, product_name, price, quantity, amount, payment_method, code, info, created_at)
-	VALUES %s`, strings.Join(values, ","))
+	insertSQL := fmt.Sprintf(`INSERT INTO Records
+        (name, gender, address, phone, category, product_id, product_name, price, quantity, amount, payment_method, code, need_certificate, info, created_at)
+        VALUES %s`, strings.Join(values, ","))
 
 	_, err = db.Exec(insertSQL, args...)
 	if err != nil {
@@ -251,6 +277,13 @@ func ListRecords(c *fiber.Ctx) error {
 	offset, _ := strconv.Atoi(c.Query("offset", "0"))
 	sortBy := c.Query("sortBy", "created_at")
 	order := strings.ToUpper(c.Query("order", "DESC"))
+
+	if !allowedSortFields[sortBy] {
+		sortBy = "created_at"
+	}
+	if !allowedSortOrders[order] {
+		order = "DESC"
+	}
 
 	var conditions []string
 	var args []interface{}
@@ -305,20 +338,20 @@ func ListRecords(c *fiber.Ctx) error {
 
 	// 查資料
 	sql := fmt.Sprintf(`
-	SELECT id, name, gender, address, phone, category, product_id, product_name, price, quantity, amount, payment_method, info, created_at
-	FROM (
-		SELECT id, name, gender, address, phone, category, product_id, product_name, price, quantity, amount, payment_method, info, created_at
-		FROM Records
-		WHERE code IS NULL OR code = ''
+        SELECT id, name, gender, address, phone, category, product_id, product_name, price, quantity, amount, payment_method, need_certificate, info, created_at
+        FROM (
+                SELECT id, name, gender, address, phone, category, product_id, product_name, price, quantity, amount, payment_method, need_certificate, info, created_at
+                FROM Records
+                WHERE code IS NULL OR code = ''
 
-		UNION ALL
+                UNION ALL
 
-		SELECT r.id, r.name, r.gender, r.address, r.phone, r.category, r.product_id, r.product_name, r.price, r.quantity, r.amount, r.payment_method, r.info, r.created_at
-		FROM Records r
-		JOIN (
-			SELECT code, MIN(created_at) AS created_at
-			FROM Records
-			WHERE code IS NOT NULL AND code != ''
+                SELECT r.id, r.name, r.gender, r.address, r.phone, r.category, r.product_id, r.product_name, r.price, r.quantity, r.amount, r.payment_method, r.need_certificate, r.info, r.created_at
+                FROM Records r
+                JOIN (
+                        SELECT code, MIN(created_at) AS created_at
+                        FROM Records
+                        WHERE code IS NOT NULL AND code != ''
 			GROUP BY code
 		) sub ON r.code = sub.code AND r.created_at = sub.created_at
 	) all_records
@@ -329,6 +362,85 @@ func ListRecords(c *fiber.Ctx) error {
 	argsWithLimit := append(args, limit, offset)
 
 	rows, err := db.Query(sql, argsWithLimit...)
+	if err != nil {
+		return c.Status(500).SendString("查詢資料失敗")
+	}
+	defer rows.Close()
+
+	result := []models.Record{}
+	for rows.Next() {
+		var r models.Record
+		err := rows.Scan(
+			&r.ID,
+			&r.Name,
+			&r.Gender,
+			&r.Address,
+			&r.Phone,
+			&r.Category,
+			&r.ProductID,
+			&r.ProductName,
+			&r.Price,
+			&r.Quantity,
+			&r.Amount,
+			&r.PaymentMethod,
+			&r.NeedCertificate,
+			&r.Info,
+			&r.CreatedAt,
+		)
+		if err != nil {
+			return c.Status(500).SendString("資料格式錯誤")
+		}
+
+		switch r.PaymentMethod {
+		case "cash":
+			r.PaymentMethod = "現金"
+		case "linepay":
+			r.PaymentMethod = "LINE Pay"
+		default:
+			r.PaymentMethod = "其他"
+		}
+
+		result = append(result, r)
+	}
+
+	return c.JSON(fiber.Map{
+		"total": total,
+		"data":  result,
+	})
+}
+
+// ListCertificateRecords returns records that have a certificate code
+func ListCertificateRecords(c *fiber.Ctx) error {
+	db, err := database.POSRECORDS.DB()
+	if err != nil {
+		return c.Status(500).SendString("資料庫連線失敗")
+	}
+
+	limit, _ := strconv.Atoi(c.Query("limit", "20"))
+	offset, _ := strconv.Atoi(c.Query("offset", "0"))
+	sortBy := c.Query("sortBy", "created_at")
+	order := strings.ToUpper(c.Query("order", "DESC"))
+
+	if !allowedSortFields[sortBy] {
+		sortBy = "created_at"
+	}
+	if !allowedSortOrders[order] {
+		order = "DESC"
+	}
+
+	var total int
+	if err := db.QueryRow("SELECT COUNT(*) FROM Records WHERE code IS NOT NULL AND code != ''").Scan(&total); err != nil {
+		return c.Status(500).SendString("計算筆數失敗")
+	}
+
+	sql := fmt.Sprintf(`
+               SELECT id, name, gender, address, phone, category, product_id, product_name, price, quantity, amount, payment_method, info, created_at
+               FROM Records
+               WHERE code IS NOT NULL AND code != ''
+               ORDER BY %s %s
+               LIMIT ? OFFSET ?`, sortBy, order)
+
+	rows, err := db.Query(sql, limit, offset)
 	if err != nil {
 		return c.Status(500).SendString("查詢資料失敗")
 	}
@@ -419,4 +531,5 @@ func embedImage(matches []string, assetsDir string, mode string) string {
 		return fmt.Sprintf(`src="data:%s;base64,%s"`, mimeType, base64Str)
 	}
 	return fmt.Sprintf(`url("data:%s;base64,%s")`, mimeType, base64Str)
+
 }

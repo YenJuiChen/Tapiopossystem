@@ -28,6 +28,6 @@ type Record struct {
 	ServiceItem     string    `json:"service_item" db:"service_item"`
 	PaymentMethod   string    `json:"payment_method" db:"payment_method"`
 	Code            string    `json:"code" db:"code"`
-	NeedCertificate bool      `json:"need_certificate"`
+	NeedCertificate bool      `json:"need_certificate" db:"need_certificate"`
 	Info            string    `json:"info" db:"info"`
 }

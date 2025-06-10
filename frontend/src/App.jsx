@@ -1,27 +1,28 @@
-import { Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom'
-import Home from './views/Home/Home'
-import ProductPage from './views/ProductPage/ProductPage'
-import ConfirmPage from './views/Confirm/ConfirmPage'
-import RecordListPage from './views/RecordList/RecordListPage'
-import PrintPage from './views/Print/PrintPage'
-import QRCodePage from './views/QRCode/QRCodePage'
-import Layout from './layout/Layout'
-import LoginPage from './views/LoginPage/LoginPage'
-import Cookies from 'js-cookie'
+import { Routes, Route, Navigate, Outlet, useLocation } from "react-router-dom";
+import Home from "./views/Home/Home";
+import ProductPage from "./views/ProductPage/ProductPage";
+import ConfirmPage from "./views/Confirm/ConfirmPage";
+import RecordListPage from "./views/RecordList/RecordListPage";
+import CertificateRecordsPage from "./views/CertificateRecords/CertificateRecordsPage";
+import PrintPage from "./views/Print/PrintPage";
+import QRCodePage from "./views/QRCode/QRCodePage";
+import Layout from "./layout/Layout";
+import LoginPage from "./views/LoginPage/LoginPage";
+import Cookies from "js-cookie";
 
 function ProtectedRoute() {
-  const token = Cookies.get('auth_token')
-  const location = useLocation()
+  const token = Cookies.get("auth_token");
+  const location = useLocation();
 
-  if (location.pathname.startsWith('/confirm')) {
-    return <Outlet />
+  if (location.pathname.startsWith("/confirm")) {
+    return <Outlet />;
   }
 
   if (!token) {
-    return <Navigate to="/login" state={{ from: location.pathname }} replace />
+    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
 
-  return <Outlet />
+  return <Outlet />;
 }
 
 function App() {
@@ -66,6 +67,16 @@ function App() {
           }
         />
 
+        {/* 🙏 感謝狀紀錄 */}
+        <Route
+          path="/certificate-records"
+          element={
+            <Layout>
+              <CertificateRecordsPage />
+            </Layout>
+          }
+        />
+
         {/* 📱 自助結帳用 QRCode 產生頁面 */}
         <Route
           path="/generate-qrcode"
@@ -83,7 +94,7 @@ function App() {
       {/* 🖨️ 列印頁（獨立） */}
       <Route path="/print" element={<PrintPage />} />
     </Routes>
-  )
+  );
 }
 
-export default App
+export default App;

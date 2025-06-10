@@ -19,6 +19,7 @@ func main() {
 	api.Get("/items", handlers.GetProducts)
 	api.Post("/record", handlers.CreateRecord)
 	api.Get("/records", handlers.ListRecords)
+	api.Get("/certificate-records", handlers.ListCertificateRecords)
 	api.Post("/scan-records", handlers.ScanRecords)
 	api.Get("/category-items", handlers.GetCategoryItems)
 	api.Get("/item-detail", handlers.GetItemDetail)
