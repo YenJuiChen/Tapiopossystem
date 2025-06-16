@@ -25,12 +25,34 @@ function ConfirmPage() {
   const [step, setStep] = useState(1)
   const [paymentMethod, setPaymentMethod] = useState('')
 
+  // 讀取從會員搜尋頁帶入的會員資料
+  useEffect(() => {
+    const stored = sessionStorage.getItem('selectedMember')
+    if (stored) {
+      try {
+        const member = JSON.parse(stored)
+        setForm(prev => ({
+          ...prev,
+          name: member.name || '',
+          gender: member.gender || '',
+          phone: member.phone || '',
+          address: member.address || '',
+        }))
+      } catch (err) {
+        console.error('failed to parse selectedMember', err)
+      } finally {
+        sessionStorage.removeItem('selectedMember')
+      }
+    }
+  }, [])
+
   useEffect(() => {
     const fetchItem = async () => {
       try {
         const res = await fetch(`/api/item-detail?item_id=${itemId}`)
         const json = await res.json()
         setProduct(json.data)
+        setForm(prev => ({ ...prev, need_certificate: json.data.is_print }))
       } catch (err) {
         console.error('載入商品資訊失敗', err)
       }

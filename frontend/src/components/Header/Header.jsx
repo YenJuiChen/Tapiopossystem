@@ -25,6 +25,12 @@ export default function Header() {
           感謝狀紀錄
         </Link>
         <Link
+          to="/member-search"
+          className={location.pathname === "/member-search" ? "active" : ""}
+        >
+          會員搜尋
+        </Link>
+        <Link
           to="/generate-qrcode"
           className={location.pathname === "/generate-qrcode" ? "active" : ""}
         >

@@ -17,8 +17,8 @@ function RecordListPage() {
     item: '',
     startDate: today,
     endDate: today,
-    startTime: '00:00',
-    endTime: '23:59',
+    startTime: '06:00',
+    endTime: '21:00',
   })
 
   const [sortBy, setSortBy] = useState('created_at')

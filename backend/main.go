@@ -22,6 +22,7 @@ func main() {
 	api.Get("/certificate-records", handlers.ListCertificateRecords)
 	api.Post("/scan-records", handlers.ScanRecords)
 	api.Get("/category-items", handlers.GetCategoryItems)
+	api.Get("/members", handlers.SearchMembers)
 	api.Get("/item-detail", handlers.GetItemDetail)
 	// ✅ WebSocket 路由
 	app.Get("/ws/print", handlers.PrintWebSocketHandler)

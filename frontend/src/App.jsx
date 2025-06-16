@@ -6,6 +6,7 @@ import RecordListPage from "./views/RecordList/RecordListPage";
 import CertificateRecordsPage from "./views/CertificateRecords/CertificateRecordsPage";
 import PrintPage from "./views/Print/PrintPage";
 import QRCodePage from "./views/QRCode/QRCodePage";
+import MemberSearchPage from "./views/MemberSearch/MemberSearchPage";
 import Layout from "./layout/Layout";
 import LoginPage from "./views/LoginPage/LoginPage";
 import Cookies from "js-cookie";
@@ -77,12 +78,31 @@ function App() {
           }
         />
 
+        {/* 🔍 會員搜尋頁 */}
+        <Route
+          path="/member-search"
+          element={
+            <Layout>
+              <MemberSearchPage />
+            </Layout>
+          }
+        />
+
         {/* 📱 自助結帳用 QRCode 產生頁面 */}
         <Route
           path="/generate-qrcode"
           element={
             <Layout>
               <QRCodePage />
+            </Layout>
+          }
+        />
+        
+        <Route
+          path="/member-search"
+          element={
+            <Layout>
+              <MemberSearchPage />
             </Layout>
           }
         />

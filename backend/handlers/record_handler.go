@@ -429,14 +429,14 @@ func ListCertificateRecords(c *fiber.Ctx) error {
 	}
 
 	var total int
-	if err := db.QueryRow("SELECT COUNT(*) FROM Records WHERE code IS NOT NULL AND code != ''").Scan(&total); err != nil {
+	if err := db.QueryRow("SELECT COUNT(*) FROM Records WHERE need_certificate = 1").Scan(&total); err != nil {
 		return c.Status(500).SendString("計算筆數失敗")
 	}
 
 	sql := fmt.Sprintf(`
                SELECT id, name, gender, address, phone, category, product_id, product_name, price, quantity, amount, payment_method, info, created_at
                FROM Records
-               WHERE code IS NOT NULL AND code != ''
+               WHERE need_certificate = 1
                ORDER BY %s %s
                LIMIT ? OFFSET ?`, sortBy, order)
 
