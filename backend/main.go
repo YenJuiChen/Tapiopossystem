@@ -21,7 +21,6 @@ func main() {
 	api.Post("/records/:id/clone", handlers.CloneRecord)
 	api.Get("/records", handlers.ListRecords)
 	api.Get("/records/:id/items", handlers.GetRecordItems)
-	api.Post("/records/:id/clone", handlers.CloneRecord)
 	api.Get("/certificate-records", handlers.ListCertificateRecords)
 	api.Post("/scan-records", handlers.ScanRecords)
 	api.Get("/category-items", handlers.GetCategoryItems)

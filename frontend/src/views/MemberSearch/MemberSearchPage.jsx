@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import Table from '../../components/Table'
+import { TableRow, TableCell } from '@mui/material'
 import './MemberSearchPage.css'
 
 export default function MemberSearchPage() {
@@ -7,6 +8,21 @@ export default function MemberSearchPage() {
   const [results, setResults] = useState([])
   const [expandedRows, setExpandedRows] = useState([])
   const [ordersMap, setOrdersMap] = useState({})
+
+  const handleClone = async (e, id) => {
+    e.stopPropagation()
+    try {
+      const res = await fetch(`/api/records/${id}/clone`, { method: 'POST' })
+      const json = await res.json()
+      if (json.status === 'success') {
+        alert('訂單成功送出')
+      } else {
+        alert('訂單送出失敗')
+      }
+    } catch (err) {
+      console.error('clone failed', err)
+    }
+  }
 
   const columns = useMemo(
     () => [
@@ -79,11 +95,12 @@ export default function MemberSearchPage() {
       <Table
         data={results}
         columns={columns}
-        expandedRows={expandedRows}
-        renderExpanded={(row) => {
+        renderExpandedRow={(row) => {
+          if (!expandedRows.includes(row.id)) return null
           const orders = ordersMap[row.id] || []
-          if (orders.length === 0) return <p>無訂單</p>
-          return (
+          const content = orders.length === 0 ? (
+            <p>無訂單</p>
+          ) : (
             <table className="sub-table">
               <thead>
                 <tr>
@@ -102,6 +119,11 @@ export default function MemberSearchPage() {
                 ))}
               </tbody>
             </table>
+          )
+          return (
+            <TableRow>
+              <TableCell colSpan={columns.length}>{content}</TableCell>
+            </TableRow>
           )
         }}
       />
