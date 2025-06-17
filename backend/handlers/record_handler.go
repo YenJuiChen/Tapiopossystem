@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/base64"
 	"fmt"
 	"hcj-fdg-pos/database"
@@ -485,6 +486,97 @@ func ListCertificateRecords(c *fiber.Ctx) error {
 		"total": total,
 		"data":  result,
 	})
+}
+
+// CloneRecord duplicates an existing order's records
+func CloneRecord(c *fiber.Ctx) error {
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"status": "fail", "message": "Invalid ID"})
+	}
+
+	db, err := database.POSRECORDS.DB()
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"status": "fail", "message": "資料庫連線失敗"})
+	}
+
+	var code sql.NullString
+	if err := db.QueryRow("SELECT code FROM Records WHERE id = ?", id).Scan(&code); err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "fail", "message": "紀錄不存在"})
+	}
+
+	var rows *sql.Rows
+	if code.Valid && code.String != "" {
+		rows, err = db.Query(`SELECT name, gender, address, phone, category, product_id, product_name, price, quantity, amount, payment_method, need_certificate, info, code FROM Records WHERE code = ?`, code.String)
+	} else {
+		rows, err = db.Query(`SELECT name, gender, address, phone, category, product_id, product_name, price, quantity, amount, payment_method, need_certificate, info, code FROM Records WHERE id = ?`, id)
+	}
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"status": "fail", "message": "查詢資料失敗"})
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var r models.Record
+		if err := rows.Scan(&r.Name, &r.Gender, &r.Address, &r.Phone, &r.Category, &r.ProductID, &r.ProductName, &r.Price, &r.Quantity, &r.Amount, &r.PaymentMethod, &r.NeedCertificate, &r.Info, &r.Code); err != nil {
+			return c.Status(500).JSON(fiber.Map{"status": "fail", "message": "資料格式錯誤"})
+		}
+		_, err := db.Exec(`INSERT INTO Records (name, gender, address, phone, category, product_id, product_name, price, quantity, amount, payment_method, code, need_certificate, info, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			r.Name, r.Gender, r.Address, r.Phone, r.Category, r.ProductID, r.ProductName, r.Price, r.Quantity, r.Amount, r.PaymentMethod, r.Code, r.NeedCertificate, r.Info, time.Now())
+		if err != nil {
+			return c.Status(500).JSON(fiber.Map{"status": "fail", "message": "複製失敗"})
+		}
+	}
+
+	return c.JSON(fiber.Map{"status": "success"})
+}
+
+// GetRecordItems returns all items belonging to an order
+func GetRecordItems(c *fiber.Ctx) error {
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"status": "fail", "message": "Invalid ID"})
+	}
+
+	db, err := database.POSRECORDS.DB()
+	if err != nil {
+		return c.Status(500).SendString("資料庫連線失敗")
+	}
+
+	var code sql.NullString
+	if err := db.QueryRow("SELECT code FROM Records WHERE id = ?", id).Scan(&code); err != nil {
+		return c.Status(404).SendString("找不到紀錄")
+	}
+
+	var rows *sql.Rows
+	if code.Valid && code.String != "" {
+		rows, err = db.Query(`SELECT id, created_at, amount, product_name, category, payment_method FROM Records WHERE code = ? ORDER BY id`, code.String)
+	} else {
+		rows, err = db.Query(`SELECT id, created_at, amount, product_name, category, payment_method FROM Records WHERE id = ?`, id)
+	}
+	if err != nil {
+		return c.Status(500).SendString("查詢資料失敗")
+	}
+	defer rows.Close()
+
+	result := []models.Record{}
+	for rows.Next() {
+		var r models.Record
+		if err := rows.Scan(&r.ID, &r.CreatedAt, &r.Amount, &r.ProductName, &r.Category, &r.PaymentMethod); err != nil {
+			return c.Status(500).SendString("資料格式錯誤")
+		}
+		switch r.PaymentMethod {
+		case "cash":
+			r.PaymentMethod = "現金"
+		case "linepay":
+			r.PaymentMethod = "LINE Pay"
+		default:
+			r.PaymentMethod = "其他"
+		}
+		result = append(result, r)
+	}
+
+	return c.JSON(result)
 }
 
 func inlineImageBase64All(html string, assetsDir string) string {

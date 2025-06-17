@@ -1,7 +1,8 @@
 import { useEffect, useState, useMemo } from "react";
 import FilterBar from "../../components/FilterBar";
-import Table from "../../components/Table";
 import Pagination from "@mui/material/Pagination";
+import { TableRow, TableCell } from "@mui/material";
+import Table from "../../components/Table";
 import "./RecordListPage.css";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -27,6 +28,7 @@ function RecordListPage() {
   const [total, setTotal] = useState(0);
   const [options, setOptions] = useState([]);
   const [page, setPage] = useState(1);
+  const [expandedRows, setExpandedRows] = useState({});
 
   const pageSize = 20;
 
@@ -76,12 +78,12 @@ function RecordListPage() {
           .map((col) => {
             const value = col.cell
               ? col.cell(row[col.accessorKey], row)
-              : row[col.accessorKey] ?? "";
+              : (row[col.accessorKey] ?? "");
             return `<td>${value}</td>`;
           })
           .join("")}
       </tr>
-    `
+    `,
       )
       .join("");
 
@@ -134,7 +136,7 @@ function RecordListPage() {
   const handlePrint = async () => {
     try {
       const res = await fetch(
-        `/api/records?${buildQuery({ limit: 9999, offset: 0 })}`
+        `/api/records?${buildQuery({ limit: 9999, offset: 0 })}`,
       );
       const json = await res.json();
       const all = Array.isArray(json.data) ? json.data : [];
@@ -152,6 +154,41 @@ function RecordListPage() {
     }
   };
 
+  const toggleExpand = async (row) => {
+    const id = row.id;
+    if (expandedRows[id]) {
+      setExpandedRows((prev) => {
+        const copy = { ...prev };
+        delete copy[id];
+        return copy;
+      });
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/records/${id}/items`);
+      const json = await res.json();
+      setExpandedRows((prev) => ({ ...prev, [id]: json }));
+    } catch (err) {
+      console.error("failed to fetch items", err);
+    }
+  };
+
+  const handleClone = async (e, id) => {
+    e.stopPropagation();
+    try {
+      const res = await fetch(`/api/records/${id}/clone`, { method: "POST" });
+      const json = await res.json();
+      if (json.status === "success") {
+        alert("訂單成功送出");
+      } else {
+        alert("訂單送出失敗");
+      }
+    } catch (err) {
+      console.error("clone failed", err);
+    }
+  };
+
   useEffect(() => {
     fetchOptions();
   }, []);
@@ -162,6 +199,18 @@ function RecordListPage() {
 
   const columns = useMemo(
     () => [
+      {
+        accessorKey: "action",
+        header: "",
+        cell: (_, row) => (
+          <button
+            className="print-button"
+            onClick={(e) => handleClone(e, row.id)}
+          >
+            +
+          </button>
+        ),
+      },
       {
         accessorKey: "created_at",
         header: "日期",
@@ -205,11 +254,35 @@ function RecordListPage() {
           v == null
             ? ""
             : typeof v === "object"
-            ? JSON.stringify(v)
-            : String(v),
+              ? JSON.stringify(v)
+              : String(v),
       },
     ],
-    []
+    [handleClone],
+  );
+
+  const detailColumns = useMemo(
+    () => [
+      {
+        accessorKey: "created_at",
+        header: "日期",
+        cell: (v) =>
+          v ? dayjs(v).tz("Asia/Taipei").format("YYYY-MM-DD HH:mm:ss") : "",
+      },
+      {
+        accessorKey: "amount",
+        header: "金額",
+        cell: (v) => (typeof v === "number" ? v.toLocaleString("en-US") : ""),
+      },
+      { accessorKey: "product_name", header: "項目", cell: (v) => v ?? "" },
+      { accessorKey: "category", header: "種類", cell: (v) => v ?? "" },
+      {
+        accessorKey: "payment_method",
+        header: "付款方式",
+        cell: (v) => v ?? "",
+      },
+    ],
+    [],
   );
 
   return (
@@ -242,6 +315,16 @@ function RecordListPage() {
           setSortBy(column);
           setOrder(direction);
         }}
+        onRowClick={toggleExpand}
+        renderExpandedRow={(row) =>
+          expandedRows[row.id] ? (
+            <TableRow>
+              <TableCell colSpan={columns.length}>
+                <Table data={expandedRows[row.id]} columns={detailColumns} />
+              </TableCell>
+            </TableRow>
+          ) : null
+        }
       />
     </div>
   );

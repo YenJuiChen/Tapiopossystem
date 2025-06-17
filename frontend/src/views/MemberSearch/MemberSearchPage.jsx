@@ -1,12 +1,12 @@
 import { useMemo, useState } from 'react'
 import Table from '../../components/Table'
 import './MemberSearchPage.css'
-import { useNavigate } from 'react-router-dom'
 
 export default function MemberSearchPage() {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
-  const navigate = useNavigate()
+  const [expandedRows, setExpandedRows] = useState([])
+  const [ordersMap, setOrdersMap] = useState({})
 
   const columns = useMemo(
     () => [
@@ -19,8 +19,8 @@ export default function MemberSearchPage() {
         accessorKey: 'action',
         header: '',
         cell: (_, row) => (
-          <button className="print-button" onClick={() => handleAddService(row)}>
-            +
+          <button className="print-button" onClick={() => handleToggleOrders(row)}>
+            ☰
           </button>
         ),
       },
@@ -39,9 +39,27 @@ export default function MemberSearchPage() {
     }
   }
 
-  const handleAddService = (member) => {
-    sessionStorage.setItem('selectedMember', JSON.stringify(member))
-    navigate('/confirm')
+
+  const handleToggleOrders = async (member) => {
+    const key = member.id
+    if (expandedRows.includes(key)) {
+      setExpandedRows(expandedRows.filter((id) => id !== key))
+      return
+    }
+    try {
+      const res = await fetch(
+        `/api/member-orders?phone=${encodeURIComponent(member.phone)}&name=${encodeURIComponent(member.name)}`
+      )
+      const json = await res.json()
+      setOrdersMap((prev) => ({
+        ...prev,
+        [key]: Array.isArray(json) ? json : json.data || [],
+      }))
+    } catch (err) {
+      console.error('Failed to fetch member orders', err)
+      setOrdersMap((prev) => ({ ...prev, [key]: [] }))
+    }
+    setExpandedRows([...expandedRows, key])
   }
 
   return (
@@ -58,7 +76,35 @@ export default function MemberSearchPage() {
           <button onClick={handleSearch}>搜尋</button>
         </div>
       </div>
-      <Table data={results} columns={columns} />
+      <Table
+        data={results}
+        columns={columns}
+        expandedRows={expandedRows}
+        renderExpanded={(row) => {
+          const orders = ordersMap[row.id] || []
+          if (orders.length === 0) return <p>無訂單</p>
+          return (
+            <table className="sub-table">
+              <thead>
+                <tr>
+                  <th>日期</th>
+                  <th>項目</th>
+                  <th>金額</th>
+                </tr>
+              </thead>
+              <tbody>
+                {orders.map((o) => (
+                  <tr key={o.id}>
+                    <td>{o.created_at}</td>
+                    <td>{o.product_name}</td>
+                    <td>{o.amount}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )
+        }}
+      />
     </div>
   )
 }

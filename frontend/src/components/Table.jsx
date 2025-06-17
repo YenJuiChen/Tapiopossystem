@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   Table as MuiTable,
   TableBody,
@@ -10,7 +10,14 @@ import {
   Paper,
 } from "@mui/material";
 
-function Table({ data = [], columns = [], onSortingChange, isPrint = false }) {
+function Table({
+  data = [],
+  columns = [],
+  onSortingChange,
+  isPrint = false,
+  onRowClick,
+  renderExpandedRow,
+}) {
   const [sortConfig, setSortConfig] = useState({
     column: "created_at",
     direction: "desc",
@@ -99,15 +106,20 @@ function Table({ data = [], columns = [], onSortingChange, isPrint = false }) {
             </TableRow>
           ) : (
             safeData.map((row, idx) => (
-              <TableRow key={idx}>
-                {columns.map((col) => (
-                  <TableCell key={col.accessorKey}>
-                    {col.cell
-                      ? col.cell(row[col.accessorKey], row)
-                      : row[col.accessorKey]}
-                  </TableCell>
-                ))}
-              </TableRow>
+              <React.Fragment key={idx}>
+                <TableRow
+                  onClick={onRowClick ? () => onRowClick(row) : undefined}
+                >
+                  {columns.map((col) => (
+                    <TableCell key={col.accessorKey}>
+                      {col.cell
+                        ? col.cell(row[col.accessorKey], row)
+                        : row[col.accessorKey]}
+                    </TableCell>
+                  ))}
+                </TableRow>
+                {renderExpandedRow ? renderExpandedRow(row) : null}
+              </React.Fragment>
             ))
           )}
         </TableBody>
