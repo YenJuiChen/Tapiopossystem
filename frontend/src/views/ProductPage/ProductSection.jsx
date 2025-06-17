@@ -1,31 +1,31 @@
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import './ProductSection.css'
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "./ProductSection.css";
 
 export default function ProductSection({ categoryId, categoryName }) {
-  const [products, setProducts] = useState([])
-  const [loading, setLoading] = useState(true)
-  const navigate = useNavigate()
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch(`/api/items?category_id=${categoryId}`)
-        const data = await res.json()
-        setProducts(data)
+        const res = await fetch(`/api/items?category_id=${categoryId}`);
+        const data = await res.json();
+        setProducts(data);
       } catch (err) {
-        console.error('載入商品失敗', err)
+        console.error("載入商品失敗", err);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchProducts()
-  }, [categoryId])
+    fetchProducts();
+  }, [categoryId]);
 
   const handleClick = (product) => {
-    navigate(`/confirm?item_id=${product.id}`)
-  }
+    navigate(`/confirm?item_id=${product.id}`);
+  };
 
   return (
     <section className="product-section">
@@ -35,7 +35,11 @@ export default function ProductSection({ categoryId, categoryName }) {
       ) : (
         <div className="product-grid">
           {products.map((p) => (
-            <div key={p.id} className="product-card" onClick={() => handleClick(p)}>
+            <div
+              key={p.id}
+              className="product-card"
+              onClick={() => handleClick(p)}
+            >
               <div className="product-name">{p.name}</div>
               <div className="product-price">${p.price}</div>
             </div>
@@ -43,5 +47,5 @@ export default function ProductSection({ categoryId, categoryName }) {
         </div>
       )}
     </section>
-  )
+  );
 }

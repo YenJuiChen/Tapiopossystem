@@ -1,22 +1,22 @@
 .print-page {
-    padding: 2rem;
-    font-family: sans-serif;
+  padding: 2rem;
+  font-family: sans-serif;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
   }
-  
-  @media print {
-    body * {
-      visibility: hidden;
-    }
-  
-    .print-page, .print-page * {
-      visibility: visible;
-    }
-  
-    .print-page {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-    }
+
+  .print-page,
+  .print-page * {
+    visibility: visible;
   }
-  
+
+  .print-page {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+}

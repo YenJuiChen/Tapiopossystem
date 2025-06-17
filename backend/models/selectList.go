@@ -3,6 +3,7 @@ package models
 type Item struct {
 	ID         int     `json:"id" gorm:"primaryKey"`
 	CategoryID int     `json:"category_id"`
+	CategoryName string `json:"category_name"`
 	Name       string  `json:"name"`
 	Image      string  `json:"image"`
 	Price      float64 `json:"price"`

@@ -1,21 +1,21 @@
-import { useLocation, useEffect } from 'react'
-import './PrintPage.css'
+import { useLocation, useEffect } from "react";
+import "./PrintPage.css";
 
 export default function PrintPage() {
-  const location = useLocation()
-  const data = location.state || {}
+  const location = useLocation();
+  const data = location.state || {};
 
   useEffect(() => {
     // 自動列印
     const printAndRedirect = async () => {
-      await new Promise((res) => setTimeout(res, 300)) // 等待畫面渲染
-      window.print()
+      await new Promise((res) => setTimeout(res, 300)); // 等待畫面渲染
+      window.print();
       // 回首頁或紀錄頁
-      window.location.href = '/'
-    }
+      window.location.href = "/";
+    };
 
-    printAndRedirect()
-  }, [])
+    printAndRedirect();
+  }, []);
 
   return (
     <div className="print-page">
@@ -28,5 +28,5 @@ export default function PrintPage() {
       <p>備註：{data.note}</p>
       <p>總金額：${data.total}</p>
     </div>
-  )
+  );
 }

@@ -1,14 +1,14 @@
-import React from 'react'
-import { TextField, MenuItem, Grid } from '@mui/material'
+import React from "react";
+import { TextField, MenuItem, Grid } from "@mui/material";
 
 const FilterBar = ({ filters, setFilters, options }) => {
   const handleChange = (e) => {
-    const { name, value } = e.target
-    setFilters((prev) => ({ ...prev, [name]: value }))
-  }
+    const { name, value } = e.target;
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  };
 
-  const selectedCategory = options.find(cat => cat.name === filters.category)
-  const availableItems = selectedCategory ? selectedCategory.items : []
+  const selectedCategory = options.find((cat) => cat.name === filters.category);
+  const availableItems = selectedCategory ? selectedCategory.items : [];
 
   return (
     <Grid container spacing={2} marginBottom={2}>
@@ -96,7 +96,7 @@ const FilterBar = ({ filters, setFilters, options }) => {
         />
       </Grid>
     </Grid>
-  )
-}
+  );
+};
 
-export default FilterBar
+export default FilterBar;

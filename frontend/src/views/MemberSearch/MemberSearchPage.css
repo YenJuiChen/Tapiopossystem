@@ -14,23 +14,41 @@
 
 .record-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: center;
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
-.record-filters {
+.search-bar {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 0.5rem;
 }
 
-.record-filters select,
-.record-filters input {
-  min-width: 180px;
+.search-bar input {
+  flex: 1;
+  min-width: 300px;
+  max-width: 500px;
+  padding: 0.75rem 1rem;
+  font-size: 1.1rem;
+}
+
+.search-bar button {
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  height: 40px;
+}
+
+.search-bar button:hover {
+  background-color: #125ea7;
 }
 
 .print-button {
@@ -46,11 +64,4 @@
 
 .print-button:hover {
   background-color: #125ea7;
-}
-
-.pagination-top {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-bottom: 1rem;
 }

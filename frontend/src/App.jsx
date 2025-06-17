@@ -97,15 +97,6 @@ function App() {
             </Layout>
           }
         />
-        
-        <Route
-          path="/member-search"
-          element={
-            <Layout>
-              <MemberSearchPage />
-            </Layout>
-          }
-        />
       </Route>
 
       {/* ✅ 確認頁面（不需登入） */}

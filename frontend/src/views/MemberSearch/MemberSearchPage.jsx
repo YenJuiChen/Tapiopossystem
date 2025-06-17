@@ -1,8 +1,32 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import Table from '../../components/Table'
+import './MemberSearchPage.css'
+import { useNavigate } from 'react-router-dom'
 
 export default function MemberSearchPage() {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
+  const navigate = useNavigate()
+
+  const columns = useMemo(
+    () => [
+      { accessorKey: 'id', header: 'ID' },
+      { accessorKey: 'name', header: '姓名' },
+      { accessorKey: 'gender', header: '性別' },
+      { accessorKey: 'phone', header: '電話' },
+      { accessorKey: 'address', header: '地址' },
+      {
+        accessorKey: 'action',
+        header: '',
+        cell: (_, row) => (
+          <button className="print-button" onClick={() => handleAddService(row)}>
+            +
+          </button>
+        ),
+      },
+    ],
+    []
+  )
 
   const handleSearch = async () => {
     if (!query) return
@@ -16,29 +40,25 @@ export default function MemberSearchPage() {
   }
 
   const handleAddService = (member) => {
-    console.log('新增服務', member)
+    sessionStorage.setItem('selectedMember', JSON.stringify(member))
+    navigate('/confirm')
   }
 
   return (
-    <div className="member-search-page">
-      <div style={{ marginBottom: '1rem' }}>
-        <input
-          type="text"
-          placeholder="輸入會員關鍵字"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          style={{ marginRight: '0.5rem' }}
-        />
-        <button onClick={handleSearch}>搜尋</button>
+    <div className="record-list-container">
+      <h2>會員搜尋</h2>
+      <div className="record-header">
+        <div className="search-bar">
+          <input
+            type="text"
+            placeholder="輸入會員關鍵字"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          <button onClick={handleSearch}>搜尋</button>
+        </div>
       </div>
-      <ul>
-        {results.map((m) => (
-          <li key={m.id} style={{ marginBottom: '0.5rem' }}>
-            <span style={{ marginRight: '1rem' }}>{m.name || m.id}</span>
-            <button onClick={() => handleAddService(m)}>新增服務</button>
-          </li>
-        ))}
-      </ul>
+      <Table data={results} columns={columns} />
     </div>
   )
 }

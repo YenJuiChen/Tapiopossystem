@@ -19,6 +19,7 @@ type Record struct {
 	Address         string    `json:"address" db:"address"`
 	Phone           string    `json:"phone" db:"phone"`
 	Category        string    `json:"category" db:"category"`
+	CategoryName    string    `json:"category_name" db:"category_name"`
 	ProductID       int       `json:"product_id" db:"product_id"`
 	ProductName     string    `json:"product_name" db:"product_name"`
 	Price           int       `json:"price" db:"price"`

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState } from "react";
 import {
   Table as MuiTable,
   TableBody,
@@ -8,26 +8,26 @@ import {
   TableRow,
   TableSortLabel,
   Paper,
-} from '@mui/material'
+} from "@mui/material";
 
 function Table({ data = [], columns = [], onSortingChange, isPrint = false }) {
   const [sortConfig, setSortConfig] = useState({
-    column: 'created_at',
-    direction: 'desc',
-  })
+    column: "created_at",
+    direction: "desc",
+  });
 
   const handleSort = (column) => {
-    let direction = 'asc'
-    if (sortConfig.column === column && sortConfig.direction === 'asc') {
-      direction = 'desc'
+    let direction = "asc";
+    if (sortConfig.column === column && sortConfig.direction === "asc") {
+      direction = "desc";
     }
-    setSortConfig({ column, direction })
+    setSortConfig({ column, direction });
     if (onSortingChange) {
-      onSortingChange(column, direction)
+      onSortingChange(column, direction);
     }
-  }
+  };
 
-  const safeData = Array.isArray(data) ? data : []
+  const safeData = Array.isArray(data) ? data : [];
 
   if (isPrint) {
     // ✅ 純 HTML table 供列印用
@@ -44,7 +44,9 @@ function Table({ data = [], columns = [], onSortingChange, isPrint = false }) {
           <tbody>
             {safeData.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} style={{ textAlign: 'center' }}>無資料</td>
+                <td colSpan={columns.length} style={{ textAlign: "center" }}>
+                  無資料
+                </td>
               </tr>
             ) : (
               safeData.map((row, idx) => (
@@ -62,7 +64,7 @@ function Table({ data = [], columns = [], onSortingChange, isPrint = false }) {
           </tbody>
         </table>
       </div>
-    )
+    );
   }
 
   // ✅ 原本 MUI Table（網頁版用）
@@ -111,7 +113,7 @@ function Table({ data = [], columns = [], onSortingChange, isPrint = false }) {
         </TableBody>
       </MuiTable>
     </TableContainer>
-  )
+  );
 }
 
-export default Table
+export default Table;

@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"time"
+
 	"hcj-fdg-pos/database"
 
 	"github.com/gofiber/fiber/v2"
@@ -16,7 +18,7 @@ func SearchMembers(c *fiber.Ctx) error {
 	}
 
 	rows, err := db.Query(`
-        SELECT id, name, gender, phone, address
+        SELECT id, name, gender, phone, address, created_at, amount, product_name, category, payment_method
         FROM Records
         WHERE name LIKE ? OR phone LIKE ?
         ORDER BY created_at DESC
@@ -29,17 +31,33 @@ func SearchMembers(c *fiber.Ctx) error {
 	defer rows.Close()
 
 	type member struct {
-		ID      int    `json:"id"`
-		Name    string `json:"name"`
-		Gender  string `json:"gender"`
-		Phone   string `json:"phone"`
-		Address string `json:"address"`
+		ID            int       `json:"id"`
+		Name          string    `json:"name"`
+		Gender        string    `json:"gender"`
+		Phone         string    `json:"phone"`
+		Address       string    `json:"address"`
+		CreatedAt     time.Time `json:"created_at"`
+		Amount        int       `json:"amount"`
+		ProductName   string    `json:"product_name"`
+		Category      string    `json:"category"`
+		PaymentMethod string    `json:"payment_method"`
 	}
 
 	var members []member
 	for rows.Next() {
 		var m member
-		if err := rows.Scan(&m.ID, &m.Name, &m.Gender, &m.Phone, &m.Address); err != nil {
+		if err := rows.Scan(
+			&m.ID,
+			&m.Name,
+			&m.Gender,
+			&m.Phone,
+			&m.Address,
+			&m.CreatedAt,
+			&m.Amount,
+			&m.ProductName,
+			&m.Category,
+			&m.PaymentMethod,
+		); err != nil {
 			return c.Status(500).SendString("資料格式錯誤")
 		}
 		members = append(members, m)
