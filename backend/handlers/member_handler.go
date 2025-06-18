@@ -23,7 +23,7 @@ func SearchMembers(c *fiber.Ctx) error {
         FROM Records
         WHERE name LIKE ? OR phone LIKE ?
         ORDER BY created_at DESC
-        LIMIT 50`,
+        LIMIT 200`,
 		"%"+q+"%", "%"+q+"%",
 	)
 	if err != nil {
@@ -45,6 +45,7 @@ func SearchMembers(c *fiber.Ctx) error {
 	}
 
 	var members []member
+	seen := make(map[string]bool)
 	for rows.Next() {
 		var m member
 		if err := rows.Scan(
@@ -61,7 +62,11 @@ func SearchMembers(c *fiber.Ctx) error {
 		); err != nil {
 			return c.Status(500).SendString("資料格式錯誤")
 		}
-		members = append(members, m)
+		key := m.Name + "|" + m.Phone
+		if !seen[key] {
+			seen[key] = true
+			members = append(members, m)
+		}
 	}
 
 	return c.JSON(members)

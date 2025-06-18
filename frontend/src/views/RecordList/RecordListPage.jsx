@@ -229,18 +229,7 @@ function RecordListPage() {
         cell: (v) => (typeof v === "number" ? v.toLocaleString("en-US") : ""),
       },
       { accessorKey: "product_name", header: "項目", cell: (v) => v ?? "" },
-      {
-        accessorKey: "category",
-        header: "種類",
-        cell: ({ getValue }) => {
-          const map = {
-            2: "香油錢",
-          };
-          const raw = getValue();
-          const key = typeof raw === "string" ? parseInt(raw) : raw;
-          return map[key] ?? raw;
-        },
-      },
+      { accessorKey: "category", header: "種類", cell: (v) => v ?? "" },
       { accessorKey: "address", header: "地址", cell: (v) => v ?? "" },
       {
         accessorKey: "payment_method",
