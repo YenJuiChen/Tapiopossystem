@@ -46,7 +46,7 @@ function CertificateRecordsPage() {
 
   const fetchOptions = async () => {
     try {
-      const res = await fetch("/api/category-items");
+      const res = await fetch("/api/category-items?printableOnly=1")
       const json = await res.json();
       setOptions(json || []);
     } catch (err) {

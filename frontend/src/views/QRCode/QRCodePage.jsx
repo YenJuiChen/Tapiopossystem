@@ -23,7 +23,7 @@ export default function QRCodePage() {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch("/api/category-items");
+      const res = await fetch("/api/category-items?qrcodeOnly=1");
       const data = await res.json();
 
       const filteredCategories = data

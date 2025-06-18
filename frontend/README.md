@@ -1,5 +1,18 @@
 # React + Vite
 
+# Hcj Fdg Pos
+
+## API Usage
+
+### `GET /api/category-items`
+
+Returns categories with their items. Optional query parameters allow filtering:
+
+- `printableOnly` – when set to `1` or `true`, only items with `is_print = 1` are returned.
+- `qrcodeOnly` – when set to `1` or `true`, only items with `is_qrcode = 1` are returned.
+
+When no flags are provided, all categories and items are returned.
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
