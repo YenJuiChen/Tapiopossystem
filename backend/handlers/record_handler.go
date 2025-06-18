@@ -194,7 +194,10 @@ func ScanRecords(c *fiber.Ctx) error {
 	}
 
 	query := fmt.Sprintf(
-		"SELECT id, name, category_id, price FROM Items WHERE id IN (%s)",
+		`SELECT i.id, i.name, c.name AS category_name, i.price
+               FROM Items i
+               JOIN Categories c ON i.category_id = c.id
+               WHERE i.id IN (%s)`,
 		strings.Trim(strings.Join(strings.Fields(fmt.Sprint(distinctIDs)), ","), "[]"),
 	)
 
@@ -206,18 +209,18 @@ func ScanRecords(c *fiber.Ctx) error {
 
 	// 建立 map[id]商品資訊
 	type ItemData struct {
-		Name       string
-		CategoryID string
-		Price      int
+		Name         string
+		CategoryName string
+		Price        int
 	}
 	itemMap := make(map[int]ItemData)
 	for rows.Next() {
 		var id, price int
-		var name, category string
-		if err := rows.Scan(&id, &name, &category, &price); err != nil {
+		var name, categoryName string
+		if err := rows.Scan(&id, &name, &categoryName, &price); err != nil {
 			continue
 		}
-		itemMap[id] = ItemData{name, category, price}
+		itemMap[id] = ItemData{name, categoryName, price}
 	}
 
 	var values []string
@@ -233,11 +236,11 @@ func ScanRecords(c *fiber.Ctx) error {
 		values = append(values, "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 		args = append(args,
 			"", "", "", "", // name, gender, address, phone
-			data.CategoryID, // category
-			item.ItemId,     // product_id
-			data.Name,       // product_name
-			data.Price,      // price
-			1, data.Price,   // quantity, amount
+			data.CategoryName, // category
+			item.ItemId,       // product_id
+			data.Name,         // product_name
+			data.Price,        // price
+			1, data.Price,     // quantity, amount
 			req.PaymentType, // payment_method
 			item.Code,       // code
 			0,               // need_certificate
@@ -417,6 +420,11 @@ func ListCertificateRecords(c *fiber.Ctx) error {
 		return c.Status(500).SendString("資料庫連線失敗")
 	}
 
+	// 查詢參數
+	category := c.Query("category")
+	item := c.Query("item")
+	startDate := c.Query("startDate")
+	endDate := c.Query("endDate")
 	limit, _ := strconv.Atoi(c.Query("limit", "20"))
 	offset, _ := strconv.Atoi(c.Query("offset", "0"))
 	sortBy := c.Query("sortBy", "created_at")
@@ -429,19 +437,55 @@ func ListCertificateRecords(c *fiber.Ctx) error {
 		order = "DESC"
 	}
 
+	var conditions []string
+	var args []interface{}
+
+	// 基本條件需有證明
+	conditions = append(conditions, "need_certificate = 1")
+
+	if category != "" {
+		conditions = append(conditions, "category = ?")
+		args = append(args, category)
+	}
+	if item != "" {
+		conditions = append(conditions, "product_name = ?")
+		args = append(args, item)
+	}
+
+	// 時間區間過濾
+	if startDate != "" && endDate != "" {
+		conditions = append(conditions, "created_at BETWEEN ? AND ?")
+		args = append(args, startDate+":00", endDate+":59")
+	} else if startDate != "" {
+		conditions = append(conditions, "created_at >= ?")
+		args = append(args, startDate+":00")
+	} else if endDate != "" {
+		conditions = append(conditions, "created_at <= ?")
+		args = append(args, endDate+":59")
+	}
+
+	whereClause := ""
+	if len(conditions) > 0 {
+		whereClause = "WHERE " + strings.Join(conditions, " AND ")
+	}
+
+	// 查總筆數
+	countSQL := fmt.Sprintf("SELECT COUNT(*) FROM Records %s", whereClause)
 	var total int
-	if err := db.QueryRow("SELECT COUNT(*) FROM Records WHERE need_certificate = 1").Scan(&total); err != nil {
+	if err := db.QueryRow(countSQL, args...).Scan(&total); err != nil {
 		return c.Status(500).SendString("計算筆數失敗")
 	}
 
+	// 查資料
 	sql := fmt.Sprintf(`
                SELECT id, name, gender, address, phone, category, product_id, product_name, price, quantity, amount, payment_method, info, created_at
                FROM Records
-               WHERE need_certificate = 1
+               %s
                ORDER BY %s %s
-               LIMIT ? OFFSET ?`, sortBy, order)
+               LIMIT ? OFFSET ?`, whereClause, sortBy, order)
 
-	rows, err := db.Query(sql, limit, offset)
+	argsWithLimit := append(args, limit, offset)
+	rows, err := db.Query(sql, argsWithLimit...)
 	if err != nil {
 		return c.Status(500).SendString("查詢資料失敗")
 	}

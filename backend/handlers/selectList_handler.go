@@ -15,11 +15,11 @@ func GetCategoryItems(c *fiber.Ctx) error {
 	}
 
 	rows, err := db.Query(`
-		SELECT c.id, c.name, i.id, i.name, i.is_print, is_qrcode
-		FROM Categories c
-		LEFT JOIN Items i ON i.category_id = c.id
-		ORDER BY c.id, i.id
-	`)
+               SELECT c.id, c.name, i.id, i.name, i.is_print, i.is_qrcode
+               FROM Categories c
+               LEFT JOIN Items i ON i.category_id = c.id AND i.is_print = 1
+               ORDER BY c.id, i.id
+       `)
 	if err != nil {
 		return c.Status(500).SendString("查詢失敗")
 	}
@@ -52,6 +52,10 @@ func GetCategoryItems(c *fiber.Ctx) error {
 
 	var result []models.Category
 	for _, cat := range categoryMap {
+		if len(cat.Items) == 0 {
+			// omit categories without printable items
+			continue
+		}
 		result = append(result, *cat)
 	}
 	return c.JSON(result)
