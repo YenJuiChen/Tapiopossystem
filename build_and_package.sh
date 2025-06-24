@@ -9,7 +9,7 @@ OUTPUT_DIR="deploy_package"
 TAR_NAME="hcj-fdg-pos-image.tar"
 REMOTE_USER="ec2-user"
 REMOTE_HOST="ec2-13-208-243-217.ap-northeast-3.compute.amazonaws.com"
-PEM_PATH="/Users/linminze/fcj-fdg-pos.pem"
+PEM_PATH="/Users/chenjunming/Documents/ssh/fcj-fdg-pos/fcj-fdg-pos.pem"
 
 # === 清理舊資料 ===
 rm -rf ${OUTPUT_DIR}
